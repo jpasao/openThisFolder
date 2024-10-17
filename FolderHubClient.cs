@@ -37,7 +37,16 @@ public class FolderHubClient : IHostedService
                     Arguments = folder,
                     FileName = "explorer.exe"
                 };
-                Process.Start(startInfo);
+                try
+                {
+                    Process.Start(startInfo);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "The error: {Message}", ex.Message);
+                }
+
+                logger.LogInformation("Path to explorer: {FileName}, Intended folder to open: '{Arguments}'", startInfo.FileName, startInfo.Arguments);
             });
         }        
     }
@@ -48,9 +57,8 @@ public class FolderHubClient : IHostedService
         {
             try
             {
-                await connection
-                    .StartAsync(cancellationToken)
-                    .ContinueWith(task => logger.LogInformation("Started connection to open STL folders"));
+                await connection.StartAsync(cancellationToken);
+                logger.LogInformation("Started connection to open STL folders");
                 break;
             }
             catch (Exception ex)
